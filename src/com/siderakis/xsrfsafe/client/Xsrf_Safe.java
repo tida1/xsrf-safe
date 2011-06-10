@@ -1,8 +1,6 @@
 package com.siderakis.xsrfsafe.client;
 
-import com.siderakis.xsrfsafe.shared.FieldVerifier;
 import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
@@ -16,6 +14,7 @@ import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.RootPanel;
 import com.google.gwt.user.client.ui.TextBox;
 import com.google.gwt.user.client.ui.VerticalPanel;
+import com.siderakis.xsrfsafe.shared.FieldVerifier;
 
 /**
  * Entry point classes define <code>onModuleLoad()</code>.
@@ -26,16 +25,17 @@ public class Xsrf_Safe implements EntryPoint {
 	 * returns an error.
 	 */
 	private static final String SERVER_ERROR = "An error occurred while "
-			+ "attempting to contact the server. Please check your network " + "connection and try again.";
+		+ "attempting to contact the server. Please check your network " + "connection and try again.";
 
 	/**
 	 * Create a remote service proxy to talk to the server-side Greeting service.
 	 */
-	private final GreetingServiceAsync greetingService = GWT.create(GreetingService.class);
+	private final GreetingServiceAsync greetingService = GreetingService.Util.getInstance();
 
 	/**
 	 * This is the entry point method.
 	 */
+	@Override
 	public void onModuleLoad() {
 		final Button sendButton = new Button("Send");
 		final TextBox nameField = new TextBox();
@@ -64,7 +64,7 @@ public class Xsrf_Safe implements EntryPoint {
 		closeButton.getElement().setId("closeButton");
 		final Label textToServerLabel = new Label();
 		final HTML serverResponseLabel = new HTML();
-		VerticalPanel dialogVPanel = new VerticalPanel();
+		final VerticalPanel dialogVPanel = new VerticalPanel();
 		dialogVPanel.addStyleName("dialogVPanel");
 		dialogVPanel.add(new HTML("<b>Sending name to the server:</b>"));
 		dialogVPanel.add(textToServerLabel);
@@ -76,7 +76,8 @@ public class Xsrf_Safe implements EntryPoint {
 
 		// Add a handler to close the DialogBox
 		closeButton.addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
+			@Override
+			public void onClick(final ClickEvent event) {
 				dialogBox.hide();
 				sendButton.setEnabled(true);
 				sendButton.setFocus(true);
@@ -88,14 +89,16 @@ public class Xsrf_Safe implements EntryPoint {
 			/**
 			 * Fired when the user clicks on the sendButton.
 			 */
-			public void onClick(ClickEvent event) {
+			@Override
+			public void onClick(final ClickEvent event) {
 				sendNameToServer();
 			}
 
 			/**
 			 * Fired when the user types in the nameField.
 			 */
-			public void onKeyUp(KeyUpEvent event) {
+			@Override
+			public void onKeyUp(final KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					sendNameToServer();
 				}
@@ -107,7 +110,7 @@ public class Xsrf_Safe implements EntryPoint {
 			private void sendNameToServer() {
 				// First, we validate the input.
 				errorLabel.setText("");
-				String textToServer = nameField.getText();
+				final String textToServer = nameField.getText();
 				if (!FieldVerifier.isValidName(textToServer)) {
 					errorLabel.setText("Please enter at least four characters");
 					return;
@@ -118,7 +121,8 @@ public class Xsrf_Safe implements EntryPoint {
 				textToServerLabel.setText(textToServer);
 				serverResponseLabel.setText("");
 				greetingService.greetServer(textToServer, new AsyncCallback<String>() {
-					public void onFailure(Throwable caught) {
+					@Override
+					public void onFailure(final Throwable caught) {
 						// Show the RPC error message to the user
 						dialogBox.setText("Remote Procedure Call - Failure");
 						serverResponseLabel.addStyleName("serverResponseLabelError");
@@ -127,7 +131,8 @@ public class Xsrf_Safe implements EntryPoint {
 						closeButton.setFocus(true);
 					}
 
-					public void onSuccess(String result) {
+					@Override
+					public void onSuccess(final String result) {
 						dialogBox.setText("Remote Procedure Call");
 						serverResponseLabel.removeStyleName("serverResponseLabelError");
 						serverResponseLabel.setHTML(result);
@@ -139,7 +144,7 @@ public class Xsrf_Safe implements EntryPoint {
 		}
 
 		// Add a handler to send the name to the server
-		MyHandler handler = new MyHandler();
+		final MyHandler handler = new MyHandler();
 		sendButton.addClickHandler(handler);
 		nameField.addKeyUpHandler(handler);
 	}
