@@ -23,6 +23,11 @@ public class XsrfTokenUtil {
 	public static char[] HEX_CHARS = new char[] { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D',
 		'E', 'F' };
 
+	public static String getToken(final String sessionCookie) {
+		final byte[] cookieBytes = sessionCookie.getBytes();
+		return toHexString(getMd5Digest(cookieBytes));
+	}
+
 	private static Cookie getCookie(final Cookie[] cookies, final String cookieName, final boolean allowDuplicates) {
 		Cookie cookieToReturn = null;
 		// Cookie[] cookies = request.getCookies();
@@ -61,8 +66,7 @@ public class XsrfTokenUtil {
 		if (sessionCookie == null || sessionCookie.getValue() == null || sessionCookie.getValue().length() == 0) {
 			return "Session cookie is not set or empty! " + "Unable to generate XSRF cookie";
 		}
-		final byte[] cookieBytes = sessionCookie.getValue().getBytes();
-		return toHexString(getMd5Digest(cookieBytes));
+		return getToken(sessionCookie.getValue());
 
 	}
 
