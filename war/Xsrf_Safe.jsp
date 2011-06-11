@@ -15,7 +15,7 @@
 
 <script type="text/javascript">
 	var info = {
-		"xsrf" : "<%=XsrfTokenUtil.getToken(request.getCookies())%>"
+		"xsrf" : "<%=XsrfTokenUtil.getToken(request.getSession().getId())%>"
 	};
 </script>
 
